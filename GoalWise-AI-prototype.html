@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GoalWise AI</title>
+<style>
+:root{--bg:#f6f7fc;--card:#fff;--tx:#1d2140;--mu:#6b7191;--ln:#e5e8f3;--b:#3b6cf6;--p:#7c4dff;--g:#1fa67a;--w:#e8a13a;--r:#e5605a;--sh:0 1px 2px rgba(40,50,110,.06),0 6px 20px rgba(40,50,110,.06);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12142a;--card:#1b1e3a;--tx:#eceefb;--mu:#9aa0c8;--ln:#2b2f55;--sh:none}}
+:root[data-theme="dark"]{--bg:#12142a;--card:#1b1e3a;--tx:#eceefb;--mu:#9aa0c8;--ln:#2b2f55;--sh:none}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{margin:0 0 .4em;line-height:1.2;letter-spacing:-.02em}h1{font-size:2.6rem}h2{font-size:1.5rem}h3{font-size:1.05rem}
+p{margin:.3em 0}.mu{color:var(--mu)}.sm{font-size:.85rem}
+.app{display:flex;min-height:100vh}
+nav{width:220px;padding:20px 14px;background:var(--card);border-right:1px solid var(--ln);position:sticky;top:0;height:100vh;flex:none}
+.logo{font-weight:800;font-size:1.15rem;padding:4px 10px 18px;background:linear-gradient(90deg,var(--b),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav a{display:block;padding:9px 12px;border-radius:10px;color:var(--mu);text-decoration:none;font-weight:600;margin-bottom:2px}
+nav a.on{background:linear-gradient(90deg,rgba(59,108,246,.14),rgba(124,77,255,.14));color:var(--b)}
+main{flex:1;padding:28px;max-width:1100px;min-width:0}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:18px;box-shadow:var(--sh)}
+.stat b{display:block;font-size:2rem;letter-spacing:-.03em}
+.btn{border:0;border-radius:10px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;background:linear-gradient(90deg,var(--b),var(--p));color:#fff;transition:filter .15s}
+.btn:hover{filter:brightness(1.08)}.btn.o{background:transparent;color:var(--tx);border:1px solid var(--ln)}.btn.gr{background:var(--g)}.btn.rd{background:transparent;color:var(--r);border:1px solid var(--r)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--p);outline-offset:2px}
+label{display:block;font-weight:600;font-size:.85rem;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:130px}.row>.btn{flex:none}
+.err{color:var(--r);font-size:.85rem;margin-top:8px}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:600}
+.done{background:rgba(31,166,122,.15);color:var(--g)}.part{background:rgba(232,161,58,.18);color:#b9741a}.skip{background:rgba(229,96,90,.15);color:var(--r)}
+.wk{display:flex;gap:8px;align-items:flex-end;height:140px;margin-top:10px}
+.wk div{flex:1;text-align:center;font-size:.72rem;color:var(--mu);display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.wk i{display:block;border-radius:8px 8px 3px 3px;margin-bottom:4px;transition:height .4s}
+.bar{height:9px;border-radius:9px;background:var(--ln);overflow:hidden;margin:3px 0 9px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--b),var(--p))}
+.ins{border-left:4px solid var(--p);padding:4px 0 4px 14px;margin:14px 0}
+.ev{font-size:.85rem;color:var(--mu);margin:2px 0 0;padding-left:18px}
+.sug{background:linear-gradient(135deg,rgba(59,108,246,.1),rgba(31,166,122,.12))}
+table{width:100%;border-collapse:collapse;font-size:.88rem}td,th{padding:8px 6px;border-bottom:1px solid var(--ln);text-align:left}th{color:var(--mu);font-weight:600}
+.tbl{overflow-x:auto}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;max-width:760px;margin:0 auto;padding:30px 22px}
+.hero h1{font-size:clamp(2.2rem,6vw,3.6rem)}.hero .tg{font-size:1.2rem;color:var(--mu);margin:14px 0 26px}
+.auth{max-width:400px;margin:8vh auto;padding:0 16px}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;z-index:9}
+.top{display:none}
+@media (max-width:760px){.app{flex-direction:column}nav{width:100%;height:auto;position:sticky;top:0;z-index:5;display:flex;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid var(--ln);gap:4px}.logo{display:none}nav a{white-space:nowrap;margin:0}main{padding:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><div id="root"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='goalwise-v1',DAY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function ds(o){const d=new Date();d.setDate(d.getDate()+o);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function seed(){const L=[[-6,'done',120,'','Great first session'],[-5,'done',110,'',''],[-4,'skip',0,'College workload','Lab record due'],[-3,'skip',0,'Tiredness',''],[-2,'part',30,'','Only had half an hour'],[-1,'done',100,'',''],[0,'skip',0,'Lack of time','Family event']];
+return{user:null,uid:50,theme:'auto',avail:90,pref:'Short daily sessions',sel:1,dismissed:{},
+goals:[{id:1,title:'Learn Python in 30 days',desc:'Finish Python basics with daily practice',cat:'Education',days:30,target:120,freq:'Daily',avail:120,plan:''}],
+logs:L.map((x,i)=>({id:i+1,goalId:1,date:ds(x[0]),status:x[1],mins:x[2],reason:x[3],note:x[4]}))}}
+let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S)S=seed();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+function theme(){const r=document.documentElement;S.theme==='auto'?r.removeAttribute('data-theme'):r.setAttribute('data-theme',S.theme)}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
+const go=r=>{location.hash=r};const route=()=>location.hash.slice(1)||'home';
+const lbl={done:'Completed',part:'Partial',skip:'Skipped'};
+const tag=s=>`<span class="tag ${s}">${lbl[s]}</span>`;
+const goal=id=>S.goals.find(g=>g.id==id);
+const logsOf=id=>S.logs.filter(l=>l.goalId==id).sort((a,b)=>a.date<b.date?-1:1);
+const score=l=>l.status==='done'?1:l.status==='part'?.5:0;
+const fmt=d=>{const x=new Date(d+'T00:00:00');return DAY[x.getDay()]+' '+x.getDate()+'/'+(x.getMonth()+1)};
+function theme_of(r){r=(r||'').toLowerCase();
+ if(/work|college|exam|assign|time|commit|busy|schedul|meeting|family/.test(r))return'Workload and time pressure';
+ if(/tired|sleep|energy|fatigue|exhaust/.test(r))return'Tiredness';
+ if(/motiv|bored|lazy|mood/.test(r))return'Low motivation';
+ if(/difficult|hard|tough|too much/.test(r))return'Target felt too hard';
+ return r?'Other reasons':'No reason given'}
+function analyze(g){
+ const L=logsOf(g.id);if(L.length<4)return{thin:true,n:L.length};
+ const n=L.length,miss=L.filter(l=>l.status!=='done'),sk=L.filter(l=>l.status==='skip'),done=n-miss.length;
+ const th={};sk.forEach(l=>{const t=theme_of(l.reason);(th[t]=th[t]||[]).push(l)});
+ const ins=[];
+ Object.entries(th).sort((a,b)=>b[1].length-a[1].length).forEach(([t,a])=>{if(a.length>=2&&t!=='No reason given')ins.push({t:t+' came up '+a.length+' times',x:'You reported this as a reason for skipping. It may be a recurring obstacle, though '+n+' entries is a small sample.',ev:a.map(l=>fmt(l.date)+': skipped, "'+(l.reason||'')+'"')})});
+ const rate=done/n;
+ if(g.target>60&&miss.length/n>=.4){const pm=L.filter(l=>l.status==='part'&&l.mins);ins.push({t:'The '+g.target+'-minute target may be too ambitious',x:'You hit the full target on '+done+' of '+n+' days. A smaller target might be easier to keep. This is a pattern in your entries, not a verdict.',ev:['Full target met: '+done+' of '+n+' days ('+Math.round(rate*100)+'%)'].concat(pm.map(l=>fmt(l.date)+': partial, '+l.mins+' min'))})}
+ if(!ins.length)ins.push({t:'No clear obstacle yet',x:'Your entries don’t show a repeated reason. Keep logging reasons when you skip, and patterns will become clearer.',ev:['Completed '+done+' of '+n+' entries']});
+ const need=miss.length/n>=.4,wk=Math.max(15,Math.round(g.target/20)*5),we=Math.max(wk,Math.round(g.target/10)*5);
+ return{n,done,rate,ins,th,sug:need&&g.target>30?{wk,we}:null}}
+function weekScore(){const w=S.logs.filter(l=>l.date>=ds(-6));return w.length?Math.round(w.reduce((a,l)=>a+score(l),0)/w.length*100):0}
+function wkChart(gid){let h='<div class="wk">';for(let o=-6;o<=0;o++){const d=ds(o),l=S.logs.filter(x=>x.date===d&&(!gid||x.goalId==gid));const s=l.length?Math.max(...l.map(score)):-1;const c=s===1?'var(--g)':s===.5?'var(--w)':s===0?'var(--r)':'var(--ln)';const ht=s<0?6:s===0?10:s*100;h+=`<div><i style="height:${ht}%;background:${c}"></i>${DAY[new Date(d+'T00:00:00').getDay()]}</div>`}return h+'</div><p class="sm mu">Green = completed, amber = partial, red = skipped, grey = no entry</p>'}
+function bars(o,max){const m=max||Math.max(1,...Object.values(o));return Object.entries(o).map(([k,v])=>`<div class="sm">${esc(k)} <b>${v}</b></div><div class="bar"><i style="width:${v/m*100}%"></i></div>`).join('')||'<p class="mu sm">Nothing to show yet.</p>'}
+function reasonCount(){const o={};S.logs.filter(l=>l.status==='skip').forEach(l=>{const r=l.reason||'No reason given';o[r]=(o[r]||0)+1});return o}
+function missDays(g){const L=logsOf(g.id).filter(l=>l.status!=='skip'&&score(l)>0);if(!L.length)return 0;const last=new Date(L[L.length-1].date+'T00:00:00'),t=new Date(ds(0)+'T00:00:00');return Math.round((t-last)/864e5)}
+
+/* pages */
+function pDash(){const L=S.logs,dn=L.filter(l=>l.status==='done').length,sk=L.filter(l=>l.status==='skip').length,g=S.goals[0],a=g&&analyze(g);
+ return`<div class="row"><div><h2>Hi ${esc(S.user.name)}</h2><p class="mu">Here’s how your goals are going this week.</p></div><button class="btn" data-go="goals">+ New goal</button></div><br>
+<div class="grid g4"><div class="card stat"><b>${S.goals.length}</b><span class="mu">Goals</span></div><div class="card stat"><b style="color:var(--g)">${dn}</b><span class="mu">Sessions completed</span></div><div class="card stat"><b style="color:var(--r)">${sk}</b><span class="mu">Sessions missed</span></div><div class="card stat"><b style="color:var(--b)">${weekScore()}%</b><span class="mu">Weekly consistency</span></div></div><br>
+<div class="grid g2"><div class="card"><h3>This week</h3>${wkChart()}</div>
+<div class="card"><h3>AI insight</h3>${a&&!a.thin?`<div class="ins"><b>${esc(a.ins[0].t)}</b><p class="sm mu">${esc(a.ins[0].x)}</p></div><button class="btn o" data-go="analysis">See evidence</button>`:'<p class="mu">Log at least 4 entries for a goal and the AI will look for patterns.</p>'}</div></div><br>
+<div class="card"><h3>Recent activity</h3>${hist(L.slice().sort((a,b)=>b.id-a.id).slice(0,5))}</div>`}
+function hist(L){return L.length?`<div class="tbl"><table><tr><th>Date</th><th>Goal</th><th>Status</th><th>Min</th><th>Reason / note</th></tr>${L.map(l=>`<tr><td>${fmt(l.date)}</td><td>${esc((goal(l.goalId)||{}).title)}</td><td>${tag(l.status)}</td><td>${l.mins||'-'}</td><td>${esc([l.reason,l.note].filter(Boolean).join(' - '))}</td></tr>`).join('')}</table></div>`:'<p class="mu">No entries yet. Log your first day on the Track page.</p>'}
+function pGoals(){return`<h2>Goals</h2><div class="grid g2"><div class="card"><h3>Create a goal</h3><form id="fGoal"><label>Title</label><input name="title" placeholder="e.g. Learn Python in 30 days"><label>Description</label><textarea name="desc" rows="2"></textarea>
+<div class="row"><div><label>Category</label><select name="cat">${['Education','Fitness','Personal development','Career','Reading','Other'].map(c=>`<option>${c}</option>`).join('')}</select></div><div><label>Duration (days)</label><input name="days" type="number" value="30"></div></div>
+<div class="row"><div><label>Target</label><select name="freq"><option>Daily</option><option>Weekly</option></select></div><div><label>Target minutes per session</label><input name="target" type="number" value="30"></div><div><label>Available minutes</label><input name="avail" type="number" value="60"></div></div>
+<div class="err" id="e"></div><br><button class="btn">Save goal</button></form></div>
+<div class="card"><h3>Your goals</h3>${S.goals.map(g=>`<div class="ins"><b>${esc(g.title)}</b> <span class="tag part">${esc(g.cat)}</span><p class="sm mu">${g.freq}, ${g.target} min, ${g.days} days${g.plan?'<br>Plan: '+esc(g.plan):''}</p><button class="btn rd sm" data-del="${g.id}">Delete</button></div>`).join('')||'<p class="mu">No goals yet.</p>'}</div></div>`}
+function pTrack(){const o=S.goals.map(g=>`<option value="${g.id}" ${g.id==S.sel?'selected':''}>${esc(g.title)}</option>`).join('');
+ if(!S.goals.length)return'<h2>Track</h2><p class="mu">Create a goal first.</p>';
+ return`<h2>Daily progress</h2><div class="card"><form id="fLog"><div class="row"><div><label>Goal</label><select name="goalId">${o}</select></div><div><label>Date</label><input name="date" type="date" value="${ds(0)}"></div></div>
+<label>How did it go?</label><select name="status" id="st"><option value="done">Completed</option><option value="part">Partially completed</option><option value="skip">Skipped</option></select>
+<div class="row"><div><label>Time spent (minutes)</label><input name="mins" type="number" value="30"></div><div id="rw" style="display:none"><label>Why did you skip?</label><select name="reason" id="rs">${['Lack of time','Low motivation','Tiredness','Too much workload','Goal was too difficult','Unexpected commitments','Other'].map(r=>`<option>${r}</option>`).join('')}</select><input name="other" id="ot" placeholder="Your own reason" style="display:none;margin-top:6px"></div></div>
+<label>Notes</label><input name="note"><div class="err" id="e"></div><br><button class="btn">Save entry</button></form></div><br><div class="card"><h3>Previous records</h3>${hist(S.logs.slice().sort((a,b)=>b.date<a.date?-1:1))}</div>`}
+function pAnalysis(){if(!S.goals.length)return'<h2>AI analysis</h2><p class="mu">Create a goal first.</p>';const g=goal(S.sel)||S.goals[0],a=analyze(g);
+ const sel=`<select id="gs">${S.goals.map(x=>`<option value="${x.id}" ${x.id==g.id?'selected':''}>${esc(x.title)}</option>`).join('')}</select>`;
+ let b;if(a.thin)b=`<div class="card"><p>Only ${a.n} entries so far. The AI needs at least 4 to find patterns, so it won’t draw conclusions yet.</p></div>`;
+ else{const hide=S.dismissed[g.id]===a.n;b=`<div class="card"><h3>What the data shows</h3><p class="mu sm">Based on ${a.n} entries. These are possible patterns from what you reported, not facts about you.</p>${a.ins.map(i=>`<div class="ins"><b>${esc(i.t)}</b><p class="sm">${esc(i.x)}</p><p class="sm mu">Evidence</p><ul class="ev">${i.ev.map(e=>`<li>${esc(e)}</li>`).join('')}</ul></div>`).join('')}</div><br>
+${a.sug&&!hide?`<div class="card sug"><h3>Suggested adjustment</h3><p>Instead of <b>${g.target} minutes daily</b>, try <b>${a.sug.wk} minutes on busy weekdays</b> and <b>${a.sug.we} minutes on weekends</b>.</p><p class="sm mu">Why: you met the full target on ${a.done} of ${a.n} days, and the missed days cluster around workload and time.</p><br><div class="row"><button class="btn gr" data-acc="${g.id}|${a.sug.wk}|${a.sug.we}">Accept</button><button class="btn o" data-rej="${g.id}|${a.n}">Reject</button></div></div>`:`<div class="card"><p class="mu">${g.plan?'Current plan: '+esc(g.plan):'No adjustment suggested right now.'}</p></div>`}`}
+ return`<div class="row"><h2>AI failure analysis</h2>${sel}</div><p class="sm mu">Engine: built-in rule-based analysis (no API key needed).</p><br>${b}`}
+function pRecovery(){if(!S.goals.length)return'<h2>Recovery</h2><p class="mu">Create a goal first.</p>';const g=goal(S.sel)||S.goals[0];const d=S.rd!=null?S.rd:missDays(g);
+ const task={Education:'Open your notes and solve one small exercise',Fitness:'A 10-minute walk or stretch',Reading:'Read just 5 pages'}[g.cat]||'Spend 10 minutes on the very first step';
+ return`<h2>Recovery mode</h2><div class="row"><span class="mu">Days away from “${esc(g.title)}”:</span>${[3,5,7].map(n=>`<button class="btn o" data-rd="${n}">${n} days</button>`).join('')}<button class="btn o" data-rd="-1">Actual (${missDays(g)})</button></div><br>
+${d>=3?`<div class="card sug"><h3>Welcome back</h3><p>It’s been ${d} days, and that’s okay. Breaks happen. You don’t need to restart from scratch or make up for lost time.</p><p><b>Today’s small task (15 min):</b> ${task}.</p><h3 style="margin-top:14px">A gentle ramp</h3><p class="sm">Day 1: 15 min. Days 2 to 3: 20 min. After that: ${g.target} min, or your adjusted plan.</p><br><button class="btn gr" data-win="${g.id}">I did my small task</button></div>`:`<div class="card"><p>You’re on track, with ${d} day${d==1?'':'s'} since your last session. Recovery mode appears when you’ve been away for 3 or more days. Use the buttons above to preview it.</p></div>`}`}
+function pAnalytics(){const R=reasonCount(),wks=[3,2,1,0].map(w=>{const a=S.logs.filter(l=>l.date>=ds(-w*7-6)&&l.date<=ds(-w*7));return a.length?Math.round(a.reduce((x,l)=>x+score(l),0)/a.length*100):0});
+ const half=Math.floor(S.logs.length/2),s=L=>L.length?Math.round(L.reduce((x,l)=>x+score(l),0)/L.length*100):0,o=S.logs.slice().sort((a,b)=>a.date<b.date?-1:1),t1=s(o.slice(0,half)),t2=s(o.slice(half));
+ return`<h2>Analytics</h2><div class="grid g2"><div class="card"><h3>Daily progress</h3>${wkChart()}</div><div class="card"><h3>Weekly completion</h3>${bars({'3 weeks ago':wks[0],'2 weeks ago':wks[1],'Last week':wks[2],'This week':wks[3]},100)}<p class="sm mu">Percent of sessions completed (partial counts half)</p></div>
+<div class="card"><h3>Most common skip reasons</h3>${bars(R)}</div><div class="card"><h3>Goal-wise progress</h3>${S.goals.map(g=>{const L=logsOf(g.id),p=L.length?Math.round(L.reduce((x,l)=>x+score(l),0)/L.length*100):0;return`<div class="sm">${esc(g.title)} <b>${p}%</b></div><div class="bar"><i style="width:${p}%"></i></div>`}).join('')||'<p class="mu sm">No goals.</p>'}</div>
+<div class="card"><h3>Improvement trend</h3><p>Earlier entries: <b>${t1}%</b><br>Recent entries: <b>${t2}%</b></p><p class="sm mu">${t2>t1?'Trending up.':t2<t1?'Dipping lately. Recovery mode can help.':'Holding steady.'}</p></div></div>`}
+function pSettings(){return`<h2>Profile and settings</h2><div class="card"><form id="fSet"><label>Name</label><input name="name" value="${esc(S.user.name)}"><label>Preferred daily availability (minutes)</label><input name="avail" type="number" value="${S.avail}"><label>Goal preference</label><select name="pref">${['Short daily sessions','Longer weekend sessions','Flexible'].map(p=>`<option ${p==S.pref?'selected':''}>${p}</option>`).join('')}</select><label>Theme</label><select name="theme">${['auto','light','dark'].map(t=>`<option ${t==S.theme?'selected':''}>${t}</option>`).join('')}</select><br><br><div class="row"><button class="btn">Save settings</button><button type="button" class="btn rd" data-reset="1">Reset demo data</button><button type="button" class="btn o" data-out="1">Log out</button></div></form></div>`}
+
+const PG={dash:['Dashboard',pDash],goals:['Goals',pGoals],track:['Track',pTrack],analysis:['AI analysis',pAnalysis],recovery:['Recovery',pRecovery],analytics:['Analytics',pAnalytics],settings:['Settings',pSettings]};
+function home(){return`<div class="hero"><div class="logo" style="padding:0 0 18px;font-size:1.4rem">GoalWise AI</div><h1>Don’t just track your failures. Learn from them. Grow beyond them.</h1><p class="tg">GoalWise AI reads your skipped days and the reasons behind them, finds the obstacles that keep coming back, and suggests smaller, realistic targets.</p><div class="row"><button class="btn" data-go="auth">Get started</button><button class="btn o" data-go="auth">Log in</button><button class="btn o" data-demo="1">Try the demo account</button></div></div>`}
+function auth(){return`<div class="auth card"><h2>Welcome</h2><form id="fAuth"><label>Name (for new accounts)</label><input name="name"><label>Email</label><input name="email" type="email"><label>Password</label><input name="pw" type="password"><div class="err" id="e"></div><br><div class="row"><button class="btn">Continue</button><button type="button" class="btn o" data-demo="1">Use demo account</button></div></form><p class="sm mu">Prototype only: data stays in this browser.</p></div>`}
+function render(){theme();let r=route(),h;
+ if(r==='home'||(!S.user&&r!=='auth')){$('#root').innerHTML=home();return}
+ if(r==='auth'){$('#root').innerHTML=auth();return}
+ if(!PG[r])r='dash';
+ $('#root').innerHTML=`<div class="app"><nav><div class="logo">GoalWise AI</div>${Object.entries(PG).map(([k,v])=>`<a href="#${k}" class="${k===r?'on':''}">${v[0]}</a>`).join('')}</nav><main>${PG[r][1]()}</main></div>`}
+function addLog(l){l.id=++S.uid;S.logs.push(l);save()}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go],[data-demo],[data-acc],[data-rej],[data-rd],[data-win],[data-del],[data-reset],[data-out]');if(!t)return;const d=t.dataset;
+ if(d.go)go(d.go);
+ if(d.demo){S=seed();S.user={name:'Harsha'};save();go('dash')}
+ if(d.acc){const[i,w,x]=d.acc.split('|'),g=goal(i);g.plan=w+' min on weekdays, '+x+' min on weekends (was '+g.target+' min daily)';g.target=+w;save();toast('Plan updated');render()}
+ if(d.rej){const[i,n]=d.rej.split('|');S.dismissed[i]=+n;save();toast('Suggestion dismissed');render()}
+ if(d.rd){S.rd=+d.rd<0?null:+d.rd;render()}
+ if(d.win){addLog({goalId:+d.win,date:ds(0),status:'done',mins:15,reason:'',note:'Recovery task'});S.rd=null;toast('Nice restart');go('dash')}
+ if(d.del){S.goals=S.goals.filter(g=>g.id!=d.del);S.logs=S.logs.filter(l=>l.goalId!=d.del);save();render()}
+ if(d.reset){const u=S.user;S=seed();S.user=u;save();toast('Demo data reset');render()}
+ if(d.out){S.user=null;save();go('home')}});
+document.addEventListener('change',e=>{if(e.target.id==='st')$('#rw').style.display=e.target.value==='skip'?'':'none';
+ if(e.target.id==='rs')$('#ot').style.display=e.target.value==='Other'?'':'none';
+ if(e.target.id==='gs'){S.sel=+e.target.value;save();render()}
+ if(e.target.name==='goalId')S.sel=+e.target.value});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,v=Object.fromEntries(new FormData(f)),er=m=>{$('#e').textContent=m};
+ if(f.id==='fAuth'){if(!/^\S+@\S+\.\S+$/.test(v.email))return er('Enter a valid email address.');if((v.pw||'').length<6)return er('Password needs at least 6 characters.');S.user={name:v.name.trim()||v.email.split('@')[0]};save();go('dash')}
+ if(f.id==='fGoal'){if(!v.title.trim())return er('Give your goal a title.');if(!(+v.target>0)||!(+v.days>0))return er('Duration and target must be above zero.');const id=++S.uid;S.goals.push({id,title:v.title.trim(),desc:v.desc,cat:v.cat,days:+v.days,target:+v.target,freq:v.freq,avail:+v.avail,plan:''});S.sel=id;save();toast('Goal saved');render()}
+ if(f.id==='fLog'){if(!v.date)return er('Pick a date.');if(v.status!=='skip'&&!(+v.mins>0))return er('Enter the minutes you spent.');let r='';if(v.status==='skip'){r=v.reason==='Other'?(v.other||'').trim():v.reason;if(!r)return er('Tell us why you skipped, even briefly.')}
+  addLog({goalId:+v.goalId,date:v.date,status:v.status,mins:v.status==='skip'?0:+v.mins,reason:r,note:v.note});S.sel=+v.goalId;toast('Entry saved');render()}
+ if(f.id==='fSet'){S.user.name=v.name.trim()||S.user.name;S.avail=+v.avail;S.pref=v.pref;S.theme=v.theme;save();toast('Settings saved');render()}});
+window.addEventListener('hashchange',render);render();
+</script></body></html>
