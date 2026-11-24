@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GoalWise AI</title>
+<style>
+:root{--bg:#0f0c29;--card:#1b1747;--line:#322c7a;--tx:#eceaff;--mut:#a9a4dc;--blue:#4f8cff;--pur:#9b6bff;--grn:#2fd9a6;--red:#ff7a90;--amb:#ffc46b;--inp:#120f38;--bgA:#0f0c29;--bgB:#241e6b;--navbg:rgba(255,255,255,.04)}
+[data-theme=light]{--card:#fff;--line:#d6d9f3;--tx:#1d1b4b;--mut:#5b5890;--inp:#f3f4ff;--bgA:#f6f7ff;--bgB:#e9e5ff;--navbg:#fff;--grn:#0f9d76;--red:#d83a57;--amb:#b87400}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:linear-gradient(135deg,var(--bgA),var(--bgB));color:var(--tx);min-height:100vh;display:flex}
+nav{width:210px;padding:22px 14px;background:var(--navbg);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;flex-shrink:0}
+.logo{font-weight:800;font-size:20px;background:linear-gradient(90deg,var(--blue),var(--pur));-webkit-background-clip:text;color:transparent;margin:0 8px 22px}
+nav a{display:block;padding:11px 14px;border-radius:10px;color:var(--mut);cursor:pointer;margin-bottom:4px;text-decoration:none}
+nav a.on,nav a:hover{background:rgba(155,107,255,.25);color:var(--tx)}
+main{flex:1;padding:28px;max-width:1000px;min-width:0}
+h1{margin:0 0 4px;font-size:26px}h2{margin:0 0 12px;font-size:18px}h3{margin:0 0 6px;font-size:15px}
+.sub{color:var(--mut);margin:0 0 20px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stat b{display:block;font-size:28px}.stat span{color:var(--mut);font-size:13px}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 5px}
+input,select,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--inp);color:var(--tx);font:inherit}
+input:disabled{opacity:.5}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+button{border:0;border-radius:10px;padding:11px 20px;font:inherit;font-weight:600;color:#fff;cursor:pointer;background:linear-gradient(90deg,var(--blue),var(--pur));margin-top:14px}
+button.g{background:transparent;border:1px solid var(--line);color:var(--mut)}button.ok{background:var(--grn);color:#fff}
+.err{color:var(--red);font-size:13px;margin-top:8px;min-height:16px}
+table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;color:var(--mut);font-weight:500;padding:8px}td{padding:10px 8px;border-top:1px solid var(--line);vertical-align:top}
+.tbl{overflow-x:auto}
+.pill{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.completed{background:rgba(47,217,166,.2);color:var(--grn)}.partial{background:rgba(255,196,107,.2);color:var(--amb)}.skipped{background:rgba(255,122,144,.2);color:var(--red)}
+.ins{border-left:4px solid var(--pur);padding:4px 0 4px 14px;margin:14px 0}.ins ul{margin:6px 0 0;padding-left:18px;color:var(--mut);font-size:14px}
+.bars{display:flex;gap:10px;align-items:flex-end;height:150px}.bar{flex:1;text-align:center;font-size:12px;color:var(--mut);display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.bar i{display:block;border-radius:8px 8px 0 0;background:linear-gradient(var(--pur),var(--blue));min-height:2px}
+.track{height:10px;background:var(--inp);border-radius:9px;overflow:hidden;margin:6px 0 14px}.track i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--grn))}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--grn);color:#06231a;padding:12px 18px;border-radius:12px;font-weight:600;display:none;z-index:9}
+.mut{color:var(--mut);font-size:14px}
+body.out nav{display:none}.hero{padding:40px 8px;max-width:760px}
+@media(max-width:760px){body{flex-direction:column}nav{width:100%;height:auto;position:static;display:flex;overflow-x:auto;padding:10px}nav a{white-space:nowrap}.logo{display:none}main{padding:16px}}
+</style></head><body>
+<nav><div class="logo">GoalWise AI</div>
+<a data-p="dashboard">Dashboard</a><a data-p="goals">Goals</a><a data-p="track">Track</a><a data-p="analysis">AI analysis</a><a data-p="recovery">Recovery</a><a data-p="analytics">Analytics</a><a data-p="settings">Settings</a><a onclick="logout()">Log out</a></nav>
+<main id="app"></main><div class="toast" id="toast"></div>
+<script>
+let KEY="goalwise_v2";
+const REASONS={time:"Lack of time",motivation:"Low motivation",tired:"Tiredness",workload:"Too much workload",hard:"Goal was too difficult",commit:"Unexpected commitments"};
+// keyword rules: applied to dropdown reason AND free-text notes of EVERY entry
+const RULES={time:/lack of time|no time|not enough time|busy|short on time/i,motivation:/motivat|lazy|bored|didn.?t feel like|no interest/i,tired:/tired|exhaust|sleep|fatigue/i,workload:/workload|assignment|exam|college|deadline|too much work|homework/i,hard:/difficult|too hard|too long|couldn.?t complete|couldn.?t finish|overwhelm/i,commit:/commitment|family|function|event|travel|guest|unexpected/i};
+const OBST={time:"Lack of time",motivation:"Low motivation",tired:"Tiredness",workload:"Heavy workload",hard:"Target feels too difficult",commit:"Unexpected commitments"};
+const iso=d=>d.toISOString().slice(0,10);
+const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return iso(d)};
+const fmt=s=>new Date(s+"T00:00").toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"2-digit"});
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function seed(){return{user:{name:"Demo Student",avail:90},goals:[{id:1,title:"Learn Python in 30 days",desc:"Python basics",cat:"Education",days:30,target:120,avail:120,created:ago(6),active:true}],
+entries:[[6,"completed",120,"","Variables and loops"],[5,"completed",120,"","Functions"],[4,"skipped",0,"workload","College workload"],[3,"skipped",0,"tired","Too tired after classes"],[2,"partial",30,"time","Only 30 minutes"],[1,"completed",90,"","Lists practice"],[0,"skipped",0,"time","Other commitments"]].map((e,i)=>({id:i+1,goal:1,date:ago(e[0]),status:e[1],min:e[2],reason:e[3],note:e[4]})),applied:[]}}
+const USERS=()=>JSON.parse(localStorage.getItem("gw_users")||"{}");
+const DEMO="demo@goalwise.ai";
+let SESSION=localStorage.getItem("gw_session"),S=null;
+function load(){KEY="goalwise_v2_"+SESSION;S=JSON.parse(localStorage.getItem(KEY)||"null")||(SESSION===DEMO?seed():{user:{name:(USERS()[SESSION]||{}).name||"Student",avail:60},goals:[],entries:[],applied:[]});}
+if(SESSION)load();
+const hash=t=>{let h=5381;for(const c of t)h=((h<<5)+h+c.charCodeAt(0))|0;return String(h)};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const applyTheme=()=>document.documentElement.dataset.theme=(S&&S.user.theme==="light"?"light":"dark");applyTheme();
+const toast=m=>{const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2200)};
+const goal=id=>S.goals.find(g=>g.id==id);
+const ents=id=>S.entries.filter(e=>e.goal==id).sort((a,b)=>a.date.localeCompare(b.date));
+let sel=null;const curGoal=()=>goal(sel)||S.goals[0];
+
+// ---------- ANALYSIS ENGINE ----------
+function tagsOf(e){const t=new Set();if(e.reason)t.add(e.reason);const txt=e.note||"";for(const k in RULES)if(RULES[k].test(txt))t.add(k);return t}
+function lowEffort(e,g){return e.status!=="skipped"&&e.min<g.target*0.5}   // "completed" but far below target counts as shortfall
+function analyze(g){
+  const E=ents(g.id),out={n:E.length,insights:[],adjust:null};
+  if(E.length<3)return out;
+  const hits={};
+  E.forEach(e=>tagsOf(e).forEach(k=>{(hits[k]=hits[k]||[]).push(`${fmt(e.date)}: ${e.status}, ${e.min} min${e.reason?" – "+REASONS[e.reason]:""}${e.note?" (“"+e.note+"”)":""}`)}));
+  Object.keys(hits).filter(k=>hits[k].length>=2).sort((a,b)=>hits[b].length-hits[a].length).forEach(k=>out.insights.push({title:OBST[k]+" appears repeatedly",text:`You mentioned this in ${hits[k].length} of ${E.length} entries. It may be interfering with your goal.`,ev:hits[k]}));
+  const short=E.filter(e=>e.status==="skipped"||lowEffort(e,g)),done=E.filter(e=>e.min>0);
+  const avg=done.length?done.reduce((a,e)=>a+e.min,0)/done.length:0;
+  if(short.length>=2){out.insights.push({title:"Target may be unrealistic",text:`${short.length} of ${E.length} entries were skipped or well under your ${g.target}-minute target.`,ev:short.map(e=>`${fmt(e.date)}: ${e.status}, ${e.min} min`)});
+    const nt=Math.max(15,Math.round(Math.min(avg||30,g.target*0.6)/5)*5);
+    if(nt<g.target)out.adjust={from:g.target,to:nt,why:`Your logged sessions average ${Math.round(avg)} min when you do study. A ${nt}-minute target may be easier to keep.`}}
+  if(!out.insights.length)out.insights.push({title:"No clear obstacle yet",text:"Entries don’t show a repeated reason. Keep logging reasons when you skip.",ev:[`${E.filter(e=>e.status==="completed"&&e.min>=g.target*0.5).length} of ${E.length} entries met at least half the target`]});
+  return out}
+function streakGap(g){const E=ents(g.id);let n=0;for(let i=E.length-1;i>=0;i--){if(E[i].status==="skipped"||E[i].min===0)n++;else break}
+  const last=E.length?E[E.length-1].date:g.created;const gap=Math.floor((new Date(iso(new Date()))-new Date(last))/864e5);return Math.max(n,gap>=2?gap:0)}
+
+// ---------- VIEWS ----------
+const V={};
+V.dashboard=()=>{const E=S.entries,done=E.filter(e=>e.status==="completed").length,sk=E.filter(e=>e.status==="skipped").length;
+  const wk=E.filter(e=>e.date>=ago(6));const cons=wk.length?Math.round(wk.filter(e=>e.status!=="skipped").length/wk.length*100):0;
+  const g=curGoal(),a=g?analyze(g):{insights:[]};
+  return `<h1>Welcome, ${esc(S.user.name)}</h1><p class="sub">Your goals and what is getting in the way.</p>
+  <div class="grid"><div class="stat"><b>${S.goals.length}</b><span>Total goals</span></div><div class="stat"><b>${done}</b><span>Completed entries</span></div><div class="stat"><b>${sk}</b><span>Skipped entries</span></div><div class="stat"><b>${cons}%</b><span>Weekly consistency</span></div></div>
+  <div class="card"><h2>Minutes this week</h2>${weekBars()}</div>
+  <div class="card"><h2>AI insight</h2>${a.insights.slice(0,1).map(i=>`<div class="ins"><h3>${i.title}</h3><div class="mut">${i.text}</div></div>`).join("")||'<p class="mut">Log at least 3 entries to see insights.</p>'}<button onclick="go('analysis')">View full analysis</button> <button class="g" onclick="go('goals')">New goal</button></div>`};
+function weekBars(){const days=[...Array(7)].map((_,i)=>ago(6-i)),v=days.map(d=>S.entries.filter(e=>e.date===d).reduce((a,e)=>a+e.min,0)),m=Math.max(...v,1);
+  return `<div class="bars">${days.map((d,i)=>`<div class="bar"><i style="height:${v[i]/m*100}%"></i>${v[i]}m<br>${fmt(d).split(" ")[0].replace(",","")}</div>`).join("")}</div>`}
+V.goals=()=>`<h1>Goals</h1><p class="sub">Set a target you can realistically keep.</p>
+  <div class="card"><h2>New goal</h2><div class="row"><div><label>Title</label><input id="gt"></div><div><label>Category</label><select id="gc">${["Education","Fitness","Personal development","Career","Reading","Other"].map(c=>`<option>${c}</option>`).join("")}</select></div></div>
+  <label>Description</label><textarea id="gd" rows="2"></textarea>
+  <div class="row"><div><label>Duration (days)</label><input id="gdu" type="number" min="1" value="30"></div><div><label>Daily target (minutes)</label><input id="gta" type="number" min="1" value="60"></div><div><label>Available time (minutes/day)</label><input id="gav" type="number" min="1" value="60"></div></div>
+  <div class="err" id="ge"></div><button onclick="addGoal()">Save goal</button></div>
+  <div class="card"><h2>Your goals</h2>${S.goals.map(g=>`<div style="margin-bottom:12px"><b>${esc(g.title)}</b><div class="mut">${g.cat} · ${g.days} days · ${g.target} min/day</div></div>`).join("")}</div>`;
+function addGoal(){const t=gt.value.trim(),d=+gdu.value,ta=+gta.value,av=+gav.value;
+  if(!t)return ge.textContent="Enter a goal title.";if(!(d>=1&&ta>=1&&av>=1))return ge.textContent="Duration, target and available time must be at least 1.";
+  if(ta>av)return ge.textContent="Daily target is more than your available time. Lower it or raise available time.";
+  const g={id:Date.now(),title:t,desc:gd.value,cat:gc.value,days:d,target:ta,avail:av,created:iso(new Date()),active:true};S.goals.push(g);sel=g.id;save();toast("Goal saved");go("track")}
+V.track=()=>{const g=curGoal();if(!g)return `<h1>Track</h1><p class="sub">Create a goal first.</p>`;
+  return `<h1>Daily progress</h1><p class="sub">Skipped days can be 0 minutes. Add the reason so the analysis can learn from it.</p>
+  <div class="card"><div class="row"><div><label>Goal</label><select id="tg" onchange="sel=this.value;render()">${S.goals.map(x=>`<option value="${x.id}" ${x.id==g.id?"selected":""}>${esc(x.title)}</option>`).join("")}</select></div>
+  <div><label>Date</label><input id="td" type="date" value="${iso(new Date())}" max="${iso(new Date())}"></div>
+  <div><label>Status</label><select id="ts" onchange="statusChg()"><option value="completed">Completed</option><option value="partial">Partially completed</option><option value="skipped">Skipped</option></select></div>
+  <div><label>Minutes spent</label><input id="tm" type="number" min="0" value="${g.target}"></div></div>
+  <div id="rw" style="display:none"><label>Reason for skipping / falling short</label><select id="tr"><option value="">Select a reason</option>${Object.entries(REASONS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>
+  <label>Notes (you can write your own reason here)</label><textarea id="tn" rows="2"></textarea><div class="err" id="te"></div><button onclick="addEntry()">Save entry</button></div>
+  <div class="card tbl"><h2>Previous records</h2><table><tr><th>Date</th><th>Status</th><th>Min</th><th>Reason / note</th></tr>${ents(g.id).reverse().map(e=>`<tr><td>${fmt(e.date)}</td><td><span class="pill ${e.status}">${e.status==="partial"?"Partial":e.status[0].toUpperCase()+e.status.slice(1)}</span></td><td>${e.min}</td><td>${[e.reason?REASONS[e.reason]:"",esc(e.note)].filter(Boolean).join(" – ")}</td></tr>`).join("")}</table></div>`};
+function statusChg(){const s=ts.value;rw.style.display=s==="completed"?"none":"block";if(s==="skipped"){tm.value=0}else if(+tm.value===0){tm.value=curGoal().target}}
+function addEntry(){const g=curGoal(),s=ts.value,m=tm.value===""?NaN:+tm.value;te.textContent="";
+  if(isNaN(m)||m<0)return te.textContent="Minutes must be 0 or more.";
+  if(s==="skipped"&&m>0)return te.textContent="A skipped day should have 0 minutes. Choose Partial if you did some work.";
+  if(s!=="skipped"&&m===0)return te.textContent="Completed or partial entries need more than 0 minutes. Choose Skipped for a zero-minute day.";
+  if(s==="completed"&&m<g.target*0.5&&!confirm(`You logged ${m} min against a ${g.target}-minute target. Save as Completed? (Partial may be more accurate.)`))return;
+  if(s==="skipped"&&!tr.value&&!tn.value.trim())return te.textContent="Add a reason or a note so the analysis has something to learn from.";
+  S.entries.push({id:Date.now(),goal:g.id,date:td.value,status:s,min:m,reason:s==="completed"?"":tr.value,note:tn.value.trim()});save();toast("Entry saved");render()}
+V.analysis=()=>{const g=curGoal();if(!g)return `<h1>AI analysis</h1>`;const a=analyze(g);
+  return `<h1>AI failure analysis</h1><p class="sub">Engine: built-in rule-based analysis (no API key needed). Based on ${a.n} entries for “${esc(g.title)}”. These are possible patterns from what you reported, not facts about you.</p>
+  ${a.n<3?`<div class="card"><p class="mut">Not enough data yet. Log at least 3 entries.</p></div>`:`<div class="card"><h2>What the data shows</h2>${a.insights.map(i=>`<div class="ins"><h3>${i.title}</h3><div class="mut">${i.text}</div><ul>${i.ev.map(x=>`<li>${x}</li>`).join("")}</ul></div>`).join("")}</div>
+  <div class="card"><h2>Suggested adjustment</h2>${a.adjust?`<p>Daily target: <b>${a.adjust.from} min → ${a.adjust.to} min</b></p><p class="mut">${a.adjust.why}</p><button class="ok" onclick="applyAdj(${g.id},${a.adjust.to})">Accept</button> <button class="g" onclick="toast('Suggestion rejected')">Reject</button>`:'<p class="mut">No adjustment suggested right now.</p>'}</div>`}`};
+function applyAdj(id,to){goal(id).target=to;save();toast("Goal updated to "+to+" min/day");render()}
+V.recovery=()=>{const g=curGoal();if(!g)return "";const n=streakGap(g),micro=Math.max(10,Math.round(g.target*0.25/5)*5);
+  return `<h1>Recovery mode</h1><p class="sub">A gentle restart, not a fresh start.</p><div class="card">${n>=2?`<h2>It’s been ${n} days without progress on “${esc(g.title)}”</h2><p>That’s okay. Let’s restart small: just <b>${micro} minutes</b> today. You don’t need to catch up on everything.</p><p class="mut">Plan: ${micro} min today → ${Math.round(micro*1.5/5)*5} min tomorrow → back to ${g.target} min over a week.</p><button class="ok" onclick="resume(${g.id},${micro})">Resume with ${micro} min</button>`:`<h2>You’re on track</h2><p class="mut">Recovery suggestions appear after 2 or more days without progress.</p>`}</div>`};
+function resume(id,m){S.entries.push({id:Date.now(),goal:id,date:iso(new Date()),status:"partial",min:m,reason:"",note:"Restarted with a small recovery task"});save();toast("Welcome back! Logged "+m+" min");go("track")}
+V.analytics=()=>{const c={};S.entries.forEach(e=>tagsOf(e).forEach(k=>c[k]=(c[k]||0)+1));const mx=Math.max(...Object.values(c),1);
+  return `<h1>Analytics</h1><p class="sub">Trends from all your entries.</p><div class="card"><h2>Daily minutes (last 7 days)</h2>${weekBars()}</div>
+  <div class="card"><h2>Most common obstacles</h2>${Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div>${OBST[k]} · ${v}</div><div class="track"><i style="width:${v/mx*100}%"></i></div>`).join("")||'<p class="mut">No reasons logged yet.</p>'}</div>
+  <div class="card"><h2>Goal progress</h2>${S.goals.map(g=>{const E=ents(g.id),p=Math.min(100,Math.round(E.filter(e=>e.status!=="skipped").length/g.days*100));return `<div>${esc(g.title)} · ${p}% of ${g.days} days</div><div class="track"><i style="width:${p}%"></i></div>`}).join("")}</div>`};
+V.settings=()=>`<h1>Settings</h1><div class="card"><label>Name</label><input id="sn" value="${esc(S.user.name)}"><label>Theme</label><select id="sth" onchange="S.user.theme=this.value;save();applyTheme()"><option value="dark" ${S.user.theme!=="light"?"selected":""}>Dark</option><option value="light" ${S.user.theme==="light"?"selected":""}>Light</option></select><label>Preferred daily availability (min)</label><input id="sa" type="number" min="1" value="${S.user.avail}"><button onclick="S.user.name=sn.value||'Student';S.user.avail=+sa.value||60;S.user.theme=sth.value;save();applyTheme();toast('Saved')">Save settings</button></div>
+  <div class="card"><h2>Demo data</h2><p class="mut">Restore the sample Python student data.</p><button class="g" onclick="if(confirm('Reset all data to the demo student?')){S=seed();sel=null;save();go('dashboard')}">Reset demo data</button> <button class="g" onclick="if(confirm('Delete everything and start empty?')){S={user:S.user,goals:[],entries:[],applied:[]};save();go('goals')}">Clear all data</button></div>`;
+function render(){const p=(location.hash||"#dashboard").slice(1);
+  if(!SESSION){document.body.classList.add("out");app.innerHTML=(p==="login"||p==="register")?authView(p):landing();return}
+  document.body.classList.remove("out");document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.p===p));app.innerHTML=(V[p]||V.dashboard)()}
+function landing(){return `<div class="hero"><div class="logo" style="font-size:28px;margin:0 0 30px">GoalWise AI</div>
+<h1 style="font-size:40px;line-height:1.15;margin-bottom:14px">Don’t just track your failures.<br>Learn from them. Grow beyond them.</h1>
+<p class="sub" style="font-size:17px;max-width:560px">GoalWise AI looks at your daily progress and the reasons you skip, finds the obstacles that keep coming back, and suggests realistic changes and a gentle restart.</p>
+<button onclick="go('register')">Get started</button> <button class="g" onclick="go('login')">Log in</button> <button class="g" onclick="demoLogin()">Try the demo student</button></div>`}
+function authView(p){const reg=p==="register";return `<div class="hero"><div class="logo" style="margin:0 0 20px">GoalWise AI</div><div class="card" style="max-width:420px"><h2>${reg?"Create your account":"Welcome back"}</h2>
+${reg?'<label>Name</label><input id="an" autocomplete="name">':''}<label>Email</label><input id="ae" type="email" autocomplete="email"><label>Password</label><input id="ap" type="password" autocomplete="${reg?"new-password":"current-password"}" placeholder="At least 6 characters">
+<div class="err" id="aerr"></div><button onclick="${reg?"doRegister()":"doLogin()"}">${reg?"Create account":"Log in"}</button>
+<p class="mut">${reg?'Already have an account? <a href="#login" style="color:var(--pur)">Log in</a>':'New here? <a href="#register" style="color:var(--pur)">Create an account</a>'} · <a href="#home" style="color:var(--pur)">Back</a></p>
+<p class="mut" style="font-size:12px">Prototype only: accounts are stored in this browser, not on a server.</p></div></div>`}
+function start(email){SESSION=email;localStorage.setItem("gw_session",email);load();applyTheme();go("dashboard")}
+function doRegister(){const n=an.value.trim(),e=ae.value.trim().toLowerCase(),pw=ap.value,U=USERS();
+  if(!n)return aerr.textContent="Enter your name.";if(!/^\S+@\S+\.\S+$/.test(e))return aerr.textContent="Enter a valid email address.";
+  if(pw.length<6)return aerr.textContent="Password must be at least 6 characters.";if(U[e])return aerr.textContent="An account with this email already exists. Log in instead.";
+  U[e]={name:n,pw:hash(pw)};localStorage.setItem("gw_users",JSON.stringify(U));start(e)}
+function doLogin(){const e=ae.value.trim().toLowerCase(),u=USERS()[e];if(!u||u.pw!==hash(ap.value))return aerr.textContent="Email or password is incorrect.";start(e)}
+function demoLogin(){const U=USERS();if(!U[DEMO]){U[DEMO]={name:"Demo Student",pw:""};localStorage.setItem("gw_users",JSON.stringify(U))}start(DEMO)}
+function logout(){SESSION=null;S=null;localStorage.removeItem("gw_session");applyTheme();go("home")}
+function go(p){location.hash=p;render()}
+document.querySelectorAll("nav a[data-p]").forEach(a=>a.onclick=()=>go(a.dataset.p));
+window.onhashchange=render;render();
+</script></body></html>
